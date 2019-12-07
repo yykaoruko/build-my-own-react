@@ -9,10 +9,6 @@
 <body>
   <div id="root"></div>
   <script>
-    const Didact = {
-      createElement,
-    };
-
     function createTextElement(text) {
       return {
         type: 'TEXT_ELEMENT',
@@ -37,12 +33,34 @@
       };
     };
 
+    function render(element, container) {
+      const dom = element.type === 'TEXT_ELEMENT'
+        ? document.createTextNode('')
+        : document.createElement(element.type);
+
+      const isProperty = (key) => key !== 'children';
+      Object.keys(element.props)
+        .filter(isProperty)
+        .forEach(name => {
+          dom[name] = element.props[name];
+        });
+
+      element.props.children.forEach(child => {
+        render(child, dom);
+      });
+      container.appendChild(dom);
+    };
+
+    const Didact = {
+      createElement,
+      render,
+    };
+
     const hoge = Didact.createElement('span', null, 'this is hoge');
-    console.log(hoge);
     const huga = Didact.createElement('h1', null, hoge, 'this is huga');
-    console.log(huga);
 
     const container = document.getElementById('root');
+    Didact.render(huga, container);
   </script>
 </body>
 </html>
